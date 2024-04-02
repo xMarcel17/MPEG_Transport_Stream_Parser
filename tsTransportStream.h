@@ -67,7 +67,7 @@ public:
   };
 
 protected:
-  //TODO - header fields, e.g.: (done)
+  //TODO - header fields, e.g.: (done1)
   uint8_t  m_SB;
   uint8_t m_E;
   uint8_t m_S;
@@ -83,7 +83,7 @@ public:
   void     Print() const;
 
 public:
-  //TODO - direct acces to header field value, e.g.: (done)
+  //TODO - direct acces to header field value, e.g.: (done2)
   uint8_t  getSyncByte() const { return m_SB; }
   uint8_t  getE() const { return m_E; }
   uint8_t  getS() const { return m_S; }  
@@ -94,7 +94,7 @@ public:
   uint8_t  getCC() const { return m_CC; }
 
 public:
-  //TODO - derrived informations (done)
+  //TODO - derrived informations (done3)
   bool     hasAdaptationField() const { 
     if (m_AFC == 2 || m_AFC == 3) return true; 
       else return false; 

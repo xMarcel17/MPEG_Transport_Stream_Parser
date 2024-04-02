@@ -5,7 +5,7 @@
 //=============================================================================================================================================================================
 
 
-/// @brief Reset - reset all TS packet header fields (done)
+/// @brief Reset - reset all TS packet header fields (done4)
 void xTS_PacketHeader::Reset()
 {
   m_SB = 0;
