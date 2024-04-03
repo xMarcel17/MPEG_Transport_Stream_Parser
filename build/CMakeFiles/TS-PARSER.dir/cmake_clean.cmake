@@ -1,12 +1,10 @@
 file(REMOVE_RECURSE
-  "CMakeFiles/TS-PARSER.dir/TS_parser.cpp.obj"
-  "CMakeFiles/TS-PARSER.dir/TS_parser.cpp.obj.d"
-  "CMakeFiles/TS-PARSER.dir/tsTransportStream.cpp.obj"
-  "CMakeFiles/TS-PARSER.dir/tsTransportStream.cpp.obj.d"
-  "TS-PARSER.exe"
-  "TS-PARSER.exe.manifest"
+  "CMakeFiles/TS-PARSER.dir/TS_parser.cpp.o"
+  "CMakeFiles/TS-PARSER.dir/TS_parser.cpp.o.d"
+  "CMakeFiles/TS-PARSER.dir/tsTransportStream.cpp.o"
+  "CMakeFiles/TS-PARSER.dir/tsTransportStream.cpp.o.d"
+  "TS-PARSER"
   "TS-PARSER.pdb"
-  "libTS-PARSER.dll.a"
 )
 
 # Per-language clean rules from dependency scanning.

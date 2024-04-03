@@ -1,14 +1,12 @@
 [
 {
-  "directory": "C:/Users/Rafal/Desktop/PDM/TS_parser_S0/build",
-  "command": "C:/msys64/ucrt64/bin/c++.exe    -Wall -Wextra -Wpedantic -std=gnu++17 -o CMakeFiles/TS-PARSER.dir/tsTransportStream.cpp.obj -c C:/Users/Rafal/Desktop/PDM/TS_parser_S0/tsTransportStream.cpp",
-  "file": "C:/Users/Rafal/Desktop/PDM/TS_parser_S0/tsTransportStream.cpp",
-  "output": "CMakeFiles/TS-PARSER.dir/tsTransportStream.cpp.obj"
+  "directory": "/home/lab/MPEG_Transport_Stream_Parser/build",
+  "command": "/usr/bin/g++    -Wall -Wextra -Wpedantic -g -fPIE -std=gnu++17 -o CMakeFiles/TS-PARSER.dir/tsTransportStream.cpp.o -c /home/lab/MPEG_Transport_Stream_Parser/tsTransportStream.cpp",
+  "file": "/home/lab/MPEG_Transport_Stream_Parser/tsTransportStream.cpp"
 },
 {
-  "directory": "C:/Users/Rafal/Desktop/PDM/TS_parser_S0/build",
-  "command": "C:/msys64/ucrt64/bin/c++.exe    -Wall -Wextra -Wpedantic -std=gnu++17 -o CMakeFiles/TS-PARSER.dir/TS_parser.cpp.obj -c C:/Users/Rafal/Desktop/PDM/TS_parser_S0/TS_parser.cpp",
-  "file": "C:/Users/Rafal/Desktop/PDM/TS_parser_S0/TS_parser.cpp",
-  "output": "CMakeFiles/TS-PARSER.dir/TS_parser.cpp.obj"
+  "directory": "/home/lab/MPEG_Transport_Stream_Parser/build",
+  "command": "/usr/bin/g++    -Wall -Wextra -Wpedantic -g -fPIE -std=gnu++17 -o CMakeFiles/TS-PARSER.dir/TS_parser.cpp.o -c /home/lab/MPEG_Transport_Stream_Parser/TS_parser.cpp",
+  "file": "/home/lab/MPEG_Transport_Stream_Parser/TS_parser.cpp"
 }
 ]

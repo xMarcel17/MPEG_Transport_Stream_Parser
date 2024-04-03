@@ -11,7 +11,7 @@ int main(int argc, char *argv[ ], char *envp[ ])
   //stworzenie zmiennej 'file', ktora bedzie wskazywac na nasz plik example_new.ts
   std::fstream file; 
   //przypisanie pliku "example_new.ts" do zmiennej file (uzyskanie dostepu do tego pliku) oraz "poinformowanie kompilatora" o trybach otwarcia pliku
-  file.open("C:/Users/Rafal/Downloads/example_new.ts", std::ios::in | std::ios::binary); //PAMIETAC o ustawieniu odpowiedniej sciezki w zaleznosci od tego, gdzie zapisany jest plik
+  file.open("/home/lab/Downloads/example_new.ts", std::ios::in | std::ios::binary); //PAMIETAC o ustawieniu odpowiedniej sciezki w zaleznosci od tego, gdzie zapisany jest plik
 
   // TODO - check if file if opened (done6)
   if(file.is_open() && file.good()){  //is_open() sprawdza, czy plik zostal otwarty, a good() zwraca informacje, czy zadna flaga bledu nie jest ustawiona
