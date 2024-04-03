@@ -107,3 +107,46 @@ public:
 };
 
 //=============================================================================================================================================================================
+
+class xTS_AdaptationField
+{
+protected:
+  //setup
+  uint8_t m_AdaptationFieldControl;
+
+  //mandatory fields (done11)
+  uint8_t m_AFL; //uint8_t m_AdaptationFieldLength;
+  uint8_t m_DC;
+  uint8_t m_RA;
+  uint8_t m_SP;
+  uint8_t m_PR;
+  uint8_t m_OR;
+  uint8_t m_SF;
+  uint8_t m_TP; 
+  uint8_t m_EX;
+  
+
+  //optional fields - PCR
+
+public:
+  void Reset();
+  int32_t Parse(const uint8_t* PacketBuffer, uint8_t AdaptationFieldControl);
+  void Print() const;
+
+public:
+  //mandatory fields (done12)
+  uint8_t getAdaptationFieldLength () const { return m_AFL ; }
+  uint8_t getDC () const { return m_DC ; }
+  uint8_t getRA () const { return m_RA ; }
+  uint8_t getSP () const { return m_SP ; }
+  uint8_t getPR () const { return m_PR ; }
+  uint8_t getOR () const { return m_OR ; }
+  uint8_t getSF () const { return m_SF ; }
+  uint8_t getTP () const { return m_TP ; }
+  uint8_t getEX () const { return m_EX ; }
+
+  //derived values
+  //uint32_t getNumBytes () const { }
+};
+
+//=============================================================================================================================================================================

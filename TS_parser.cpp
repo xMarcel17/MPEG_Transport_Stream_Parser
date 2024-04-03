@@ -23,6 +23,8 @@ int main(int argc, char *argv[ ], char *envp[ ])
   }
 
   xTS_PacketHeader TS_PacketHeader;
+  xTS_AdaptationField TS_AdaptationField; //(done14)
+
   char *TS_PacketBuffer = new char[xTS::TS_PacketLength]; //stworzenie tablicy dynamicznej (bufora) przechowujacej pojedynczy pakiet strumienia transportowego
 
   int32_t TS_PacketId = 0;
@@ -38,6 +40,12 @@ int main(int argc, char *argv[ ], char *envp[ ])
 
       printf("%010d ", TS_PacketId);
       TS_PacketHeader.Print();
+
+      if(TS_PacketHeader.hasAdaptationField()){ //(done15)
+        TS_AdaptationField.Reset();
+        
+      }
+
       printf("\n");
 
       TS_PacketId++;
