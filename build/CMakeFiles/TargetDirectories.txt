@@ -1,3 +1,0 @@
-/home/lab/MPEG_Transport_Stream_Parser/build/CMakeFiles/TS-PARSER.dir
-/home/lab/MPEG_Transport_Stream_Parser/build/CMakeFiles/edit_cache.dir
-/home/lab/MPEG_Transport_Stream_Parser/build/CMakeFiles/rebuild_cache.dir
