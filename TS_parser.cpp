@@ -11,7 +11,7 @@ int main(int argc, char *argv[ ], char *envp[ ])
   //stworzenie zmiennej 'file', ktora bedzie wskazywac na nasz plik example_new.ts
   std::fstream file; 
   //przypisanie pliku "example_new.ts" do zmiennej file (uzyskanie dostepu do tego pliku) oraz "poinformowanie kompilatora" o trybach otwarcia pliku
-  file.open("/home/lab/Downloads/example_new.ts", std::ios::in | std::ios::binary); //PAMIETAC o ustawieniu odpowiedniej sciezki w zaleznosci od tego, gdzie zapisany jest plik
+  file.open("C:/Users/Rafal/Downloads/example_new.ts", std::ios::in | std::ios::binary); //PAMIETAC o ustawieniu odpowiedniej sciezki w zaleznosci od tego, gdzie zapisany jest plik
 
   // TODO - check if file if opened (done6)
   if(file.is_open() && file.good()){  //is_open() sprawdza, czy plik zostal otwarty, a good() zwraca informacje, czy zadna flaga bledu nie jest ustawiona
@@ -32,18 +32,20 @@ int main(int argc, char *argv[ ], char *envp[ ])
   {
     // TODO - read from file (done7)
     file.read(TS_PacketBuffer, xTS::TS_PacketLength); //read() zczytuje pierwsze 188B do bufora i w kolejnej iteracji zczytuje kolejne 188B itd.
-    uint8_t *TS_PacketBufferFinal = reinterpret_cast<uint8_t*>(TS_PacketBuffer); //rzutowanie typu tablicy na uint8_t (z racji iz nasz Input w Parse() to uint8_t, wiec musimy to wykonac) 
+    uint8_t *TS_PacketBufferFinal = reinterpret_cast<uint8_t*>(TS_PacketBuffer); //rzutowanie typu tablicy char na uint8_t (z racji iz nasz Input w Parse() to uint8_t, wiec musimy to wykonac) 
 
-    if(TS_PacketBuffer[0] == 71){ //upewnienie sie, ze poczatek pakietu (pierwsze 8 bitow - Sync Byte) jest rowny 0x47)
+    if(TS_PacketBuffer[0] == 71){ //upewnienie sie, ze poczatek pakietu (pierwsze 8 bitow - Sync Byte) jest rowny 0x47
+      //PacketHeader - Reset + Parse + Print
       TS_PacketHeader.Reset();
       TS_PacketHeader.Parse(TS_PacketBufferFinal);
-
       printf("%010d ", TS_PacketId);
       TS_PacketHeader.Print();
 
-      if(TS_PacketHeader.hasAdaptationField()){ //(done15)
+      //AdaptationField - Reset + Parse + Print
+      if(TS_PacketHeader.hasAdaptationField() == true){ //(done15)
         TS_AdaptationField.Reset();
-        
+        TS_AdaptationField.Parse(TS_PacketBufferFinal, TS_PacketHeader.getAFC());
+        TS_AdaptationField.Print();
       }
 
       printf("\n");

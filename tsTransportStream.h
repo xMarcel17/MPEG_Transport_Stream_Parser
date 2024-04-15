@@ -68,7 +68,7 @@ public:
 
 protected:
   //TODO - header fields, e.g.: (done1)
-  uint8_t  m_SB;
+  uint8_t m_SB;
   uint8_t m_E;
   uint8_t m_S;
   uint8_t m_T;
@@ -125,7 +125,6 @@ protected:
   uint8_t m_TP; 
   uint8_t m_EX;
   
-
   //optional fields - PCR
 
 public:
