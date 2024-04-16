@@ -1,5 +1,6 @@
 #include "tsTransportStream.h"
 #include <iostream>
+#include <iomanip>
 
 //=============================================================================================================================================================================
 // xTS_PacketHeader
@@ -132,7 +133,7 @@ int32_t xTS_PacketHeader::Parse(const uint8_t* Input)
 void xTS_PacketHeader::Print() const
 {
   //print sth (done10) + rzutowanie na int by poprawnie wyswietlilo (nie w char, tylko int)
-  std::cout << "TS: SB=" << (int)m_SB << "  E=" << (int)m_E << " S=" << (int)m_S << " T=" << (int)m_T << " PID=" << (int)m_PID << " TSC=" << (int)m_TSC << " AF=" << (int)m_AFC << " CC=" << (int)m_CC; 
+  std::cout << "TS: SB=" << (int)m_SB << " E=" << (int)m_E << " S=" << (int)m_S << " T=" << (int)m_T << " PID=" << (int)m_PID << " TSC=" << (int)m_TSC << " AF=" << (int)m_AFC << " CC=" << (int)m_CC; 
 }
 
 //=============================================================================================================================================================================
@@ -155,6 +156,11 @@ void xTS_AdaptationField::Reset()
   m_SF = 0;
   m_TP = 0; 
   m_EX = 0;
+  m_PCR = 0;
+  m_PCRB = 0;
+  m_PCRE = 0;
+  m_Time = 0; 
+  m_Stuffing = 0;
 }
 
   /**
@@ -220,6 +226,36 @@ int32_t xTS_AdaptationField::Parse(const uint8_t* PacketBuffer, uint8_t Adaptati
       m_EX = 1;
     } else m_EX = 0;
 
+    //parsing PCR fields + time + stuffing (done20)
+    if(m_PR == 1){
+      m_PCRB = m_PCRB + PacketBuffer[6];
+      m_PCRB = m_PCRB << 8;
+      m_PCRB = m_PCRB + PacketBuffer[7];
+      m_PCRB = m_PCRB << 8;
+      m_PCRB = m_PCRB + PacketBuffer[8];
+      m_PCRB = m_PCRB << 8;
+      m_PCRB = m_PCRB + PacketBuffer[9];
+      m_PCRB = m_PCRB << 1;
+      uint8_t tempVal = 0;
+      if((0b10000000 & PacketBuffer[10])>0){
+        tempVal = 1;
+      }
+      m_PCRB = m_PCRB + tempVal;
+
+      m_PCRE = m_PCRE + (0b00000001 & PacketBuffer[10]);
+      m_PCRE = m_PCRE << 8;
+      m_PCRE = m_PCRE + PacketBuffer[11];
+
+      m_PCR = (m_PCRB*300) + m_PCRE;
+
+      m_Time = (float)m_PCR/(float)xTS::ExtendedClockFrequency_Hz;
+
+      m_Stuffing = 0;
+    }
+    else{
+      m_Stuffing = m_AFL - 1;
+    }
+
     return m_AFL;
   }
   else{
@@ -230,7 +266,12 @@ int32_t xTS_AdaptationField::Parse(const uint8_t* PacketBuffer, uint8_t Adaptati
 void xTS_AdaptationField::Print() const
 {
   //print print print (done17)
-  std::cout << " AF: L=" << (int)m_AFL << " DC=" << (int)m_DC << " RA=" << (int)m_RA << " SP=" << (int)m_SP << " PR=" << (int)m_PR << " OR=" << (int)m_OR << " SF=" << (int)m_SF << " TP=" << (int)m_TP << " EX=" << (int)m_EX;
+  if(m_PR == 1){
+    std::cout << " AF: L=" << (int)m_AFL << " DC=" << (int)m_DC << " RA=" << (int)m_RA << " SP=" << (int)m_SP << " PR=" << (int)m_PR << " OR=" << (int)m_OR << " SF=" << (int)m_SF << " TP=" << (int)m_TP << " EX=" << (int)m_EX << " PCR=" << int(m_PCR) << " (Time=" << std::setprecision(6) << std::fixed << m_Time << "s)" << " Stuffing:" << (int)m_Stuffing;;
+  }
+  else{
+    std::cout << " AF: L=" << (int)m_AFL << " DC=" << (int)m_DC << " RA=" << (int)m_RA << " SP=" << (int)m_SP << " PR=" << (int)m_PR << " OR=" << (int)m_OR << " SF=" << (int)m_SF << " TP=" << (int)m_TP << " EX=" << (int)m_EX << " Stuffing:" << (int)m_Stuffing;
+  }
 }
 
 //=============================================================================================================================================================================

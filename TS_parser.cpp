@@ -28,7 +28,7 @@ int main(int argc, char *argv[ ], char *envp[ ])
   char *TS_PacketBuffer = new char[xTS::TS_PacketLength]; //stworzenie tablicy dynamicznej (bufora) przechowujacej pojedynczy pakiet strumienia transportowego
 
   int32_t TS_PacketId = 0;
-  while(!file.eof() == true && TS_PacketId < 34) //petla wykonuje sie dopoki nie zostanie osiagniety koniec pliku
+  while(!file.eof() == true && TS_PacketId < 190) //petla wykonuje sie dopoki nie zostanie osiagniety koniec pliku
   {
     // TODO - read from file (done7)
     file.read(TS_PacketBuffer, xTS::TS_PacketLength); //read() zczytuje pierwsze 188B do bufora i w kolejnej iteracji zczytuje kolejne 188B itd.

@@ -125,7 +125,13 @@ protected:
   uint8_t m_TP; 
   uint8_t m_EX;
   
-  //optional fields - PCR
+  //optional fields - PCR + Stuffing
+  //(done19 - PCR fields)
+  uint64_t m_PCR;
+  uint64_t m_PCRB;
+  uint16_t m_PCRE;
+  float m_Time; 
+  uint8_t m_Stuffing; //(done18)
 
 public:
   void Reset();
@@ -143,6 +149,10 @@ public:
   uint8_t getSF () const { return m_SF ; }
   uint8_t getTP () const { return m_TP ; }
   uint8_t getEX () const { return m_EX ; }
+  uint64_t getPCR () const { return m_PCR ; }
+  uint64_t getPCRB () const { return m_PCRB ; }
+  uint16_t getPCRE() const { return m_PCRE ; }
+  uint8_t getStuffing () const { return m_Stuffing ; }
 
   //derived values
   //uint32_t getNumBytes () const { }
