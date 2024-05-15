@@ -180,10 +180,11 @@ protected:
   uint32_t m_PacketStartCodePrefix;
   uint8_t m_StreamId;
   uint16_t m_PacketLength;
+  uint8_t indexStart;
 
 public:
   void Reset();
-  int32_t Parse(const uint8_t* Input);
+  int32_t Parse(const uint8_t* PacketBuffer, uint16_t PacketIdentifier, uint8_t ifAF, uint8_t AdaptationFieldLength);
   void Print() const;
 
 public:
@@ -191,6 +192,7 @@ public:
   uint32_t getPacketStartCodePrefix() const { return m_PacketStartCodePrefix; }
   uint8_t getStreamId () const { return m_StreamId; }
   uint16_t getPacketLength () const { return m_PacketLength; }
+  uint8_t getIndexStart () const { return indexStart; }
 };
 
 //=============================================================================================================================================================================
@@ -212,19 +214,19 @@ protected:
   int32_t m_PID;
   //buffer
   uint8_t* m_Buffer;
-  uint32_t m_BufferSize;
-  uint32_t m_DataOffset;
+  uint32_t m_BufferSize; 
+  uint32_t m_DataOffset; 
   //operation
-  int8_t m_LastContinuityCounter;
+  int8_t m_LastContinuityCounter; //CC
   bool m_Started;
   xPES_PacketHeader m_PESH;
 
 public:
-  xPES_Assembler ();
-  ~xPES_Assembler();
+  xPES_Assembler (){ m_PESH.Reset(); }
+  ~xPES_Assembler(){}
 
   void Init (int32_t PID);
-  eResult AbsorbPacket(const uint8_t* TransportStreamPacket, const xTS_PacketHeader* PacketHeader, const xTS_AdaptationField* AdaptationField);
+  eResult AbsorbPacket(const uint8_t* TransportStreamPacket, xTS_PacketHeader PacketHeader, xTS_AdaptationField AdaptationField);
   
   void PrintPESH () const { m_PESH.Print(); }
   uint8_t* getPacket () { return m_Buffer; }

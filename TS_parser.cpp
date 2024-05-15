@@ -24,6 +24,8 @@ int main(int argc, char *argv[ ], char *envp[ ])
 
   xTS_PacketHeader TS_PacketHeader;
   xTS_AdaptationField TS_AdaptationField; //(done14)
+  xPES_PacketHeader PES_PacketHeader; //(done24)
+  xPES_Assembler PES_Assembler;
 
   char *TS_PacketBuffer = new char[xTS::TS_PacketLength]; //stworzenie tablicy dynamicznej (bufora) przechowujacej pojedynczy pakiet strumienia transportowego
 
@@ -38,17 +40,39 @@ int main(int argc, char *argv[ ], char *envp[ ])
       //PacketHeader - Reset + Parse + Print
       TS_PacketHeader.Reset();
       TS_PacketHeader.Parse(TS_PacketBufferFinal);
+      if(TS_PacketHeader.getPID() == 136){
       printf("%010d ", TS_PacketId);
       TS_PacketHeader.Print();
-
-      //AdaptationField - Reset + Parse + Print
-      if(TS_PacketHeader.hasAdaptationField() == true){ //(done15)
-        TS_AdaptationField.Reset();
-        TS_AdaptationField.Parse(TS_PacketBufferFinal, TS_PacketHeader.getAFC());
-        TS_AdaptationField.Print();
       }
 
-      printf("\n");
+      //AdaptationField - Reset + Parse + Print
+       if(TS_PacketHeader.hasAdaptationField() == true){ //(done15)
+         TS_AdaptationField.Reset();
+         TS_AdaptationField.Parse(TS_PacketBufferFinal, TS_PacketHeader.getAFC());
+         //TS_AdaptationField.Print();
+      }
+
+      //PES_PacketHeader (done25)
+      if(TS_PacketHeader.hasPayload() == true && TS_PacketHeader.getPID() == 136){
+        if(TS_PacketHeader.getS() == 1){
+          PES_PacketHeader.Reset();
+          PES_PacketHeader.Parse(TS_PacketBufferFinal, TS_PacketHeader.getPID(), TS_PacketHeader.getAFC(), TS_AdaptationField.getAdaptationFieldLength());
+          //PES_PacketHeader.Print();
+        }
+      }
+      
+      if(TS_PacketHeader.getPID() == 136){
+        xPES_Assembler::eResult Result = PES_Assembler.AbsorbPacket(TS_PacketBufferFinal, TS_PacketHeader, TS_AdaptationField);
+        switch(Result)
+        {
+        case xPES_Assembler::eResult::StreamPackedLost : printf(" PcktLost "); break;
+        case xPES_Assembler::eResult::AssemblingStarted : printf(" Started"); PES_PacketHeader.Print(); break;
+        case xPES_Assembler::eResult::AssemblingContinue: printf(" Continue"); break;
+        case xPES_Assembler::eResult::AssemblingFinished: printf(" Finished "); printf("PES: Len=%d", PES_Assembler.getNumPacketBytes()); break;
+        default: break;
+        }
+        printf("\n");
+      }
 
       TS_PacketId++;
     }

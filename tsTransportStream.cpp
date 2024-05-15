@@ -265,13 +265,15 @@ int32_t xTS_AdaptationField::Parse(const uint8_t* PacketBuffer, uint8_t Adaptati
 /// @brief Print all TS packet header fields
 void xTS_AdaptationField::Print() const
 {
-  //print print print (done17)
-  if(m_PR == 1){
-    std::cout << " AF: L=" << (int)m_AFL << " DC=" << (int)m_DC << " RA=" << (int)m_RA << " SP=" << (int)m_SP << " PR=" << (int)m_PR << " OR=" << (int)m_OR << " SF=" << (int)m_SF << " TP=" << (int)m_TP << " EX=" << (int)m_EX << " PCR=" << int(m_PCR) << " (Time=" << std::setprecision(6) << std::fixed << m_Time << "s)" << " Stuffing:" << (int)m_Stuffing;;
-  }
-  else{
-    std::cout << " AF: L=" << (int)m_AFL << " DC=" << (int)m_DC << " RA=" << (int)m_RA << " SP=" << (int)m_SP << " PR=" << (int)m_PR << " OR=" << (int)m_OR << " SF=" << (int)m_SF << " TP=" << (int)m_TP << " EX=" << (int)m_EX << " Stuffing:" << (int)m_Stuffing;
-  }
+  //print print print (done17) - opcja z PCR
+  // if(m_PR == 1){
+  //   std::cout << " AF: L=" << (int)m_AFL << " DC=" << (int)m_DC << " RA=" << (int)m_RA << " SP=" << (int)m_SP << " PR=" << (int)m_PR << " OR=" << (int)m_OR << " SF=" << (int)m_SF << " TP=" << (int)m_TP << " EX=" << (int)m_EX << " PCR=" << int(m_PCR) << " (Time=" << std::setprecision(6) << std::fixed << m_Time << "s)" << " Stuffing:" << (int)m_Stuffing;
+  // }
+  // else{
+  //   std::cout << " AF: L=" << (int)m_AFL << " DC=" << (int)m_DC << " RA=" << (int)m_RA << " SP=" << (int)m_SP << " PR=" << (int)m_PR << " OR=" << (int)m_OR << " SF=" << (int)m_SF << " TP=" << (int)m_TP << " EX=" << (int)m_EX << " Stuffing:" << (int)m_Stuffing;
+  // }
+
+  std::cout << " AF: L=" << (int)m_AFL << " DC=" << (int)m_DC << " RA=" << (int)m_RA << " SP=" << (int)m_SP << " PR=" << (int)m_PR << " OR=" << (int)m_OR << " SF=" << (int)m_SF << " TP=" << (int)m_TP << " EX=" << (int)m_EX;
 }
 
 //=============================================================================================================================================================================
@@ -280,19 +282,46 @@ void xTS_AdaptationField::Print() const
 // xPES_PacketHeader
 //=============================================================================================================================================================================
 
-void xPES_PacketHeader::Reset()
+void xPES_PacketHeader::Reset() //(done21)
 {
-
+  m_PacketStartCodePrefix = 0;
+  m_StreamId = 0;
+  m_PacketLength = 0;
+  indexStart = 0; 
 }
 
-int32_t xPES_PacketHeader::Parse(const uint8_t* PacketBuffer)
+int32_t xPES_PacketHeader::Parse(const uint8_t* PacketBuffer, uint16_t PacketIdentifier, uint8_t ifAF, uint8_t AdaptationFieldLength) //(done22)
 {
+  indexStart = 0; //zmienna przechowujaca informacje od jakiego bajtu zaczyna sie Payload dla danego pakietu 188 bajtowego
+  uint8_t AFL_Flag = 1;
 
+  if(ifAF == 0 || ifAF == 1){
+    AdaptationFieldLength = 0;
+    AFL_Flag = 0;
+  }
+
+  
+
+  if(PacketIdentifier == 136) { //na start sprawdzamy, czy PID jest 136
+    indexStart = 4 + AFL_Flag + AdaptationFieldLength; 
+
+    if(PacketBuffer[indexStart] == 0 && PacketBuffer[indexStart+1] == 0 && PacketBuffer[indexStart+2] == 1){
+      m_PacketStartCodePrefix = 1;
+    }
+
+    m_StreamId = PacketBuffer[indexStart+3];
+
+    m_PacketLength = m_PacketLength + PacketBuffer[indexStart+4];
+    m_PacketLength = m_PacketLength << 8;
+    m_PacketLength = m_PacketLength + PacketBuffer[indexStart+5];
+  }
+
+  return 1;
 }
 
-void xPES_PacketHeader::Print() const
+void xPES_PacketHeader::Print() const //(done23)
 {
-
+    std::cout << " PES: PSCP=" << (int)m_PacketStartCodePrefix << " SID=" << (int)m_StreamId << " L=" << (int)m_PacketLength;
 }
 
 //=============================================================================================================================================================================
@@ -300,5 +329,62 @@ void xPES_PacketHeader::Print() const
 //=============================================================================================================================================================================
 // xPES_Assembler
 //=============================================================================================================================================================================
+void xPES_Assembler::Init(int32_t PID)
+{
+  m_PID = PID; 
+  m_BufferSize = 0;
+  m_DataOffset = 0;
+  m_LastContinuityCounter = 0;
+}
 
+xPES_Assembler::eResult xPES_Assembler::AbsorbPacket(const uint8_t* TransportStreamPacket, xTS_PacketHeader PacketHeader, xTS_AdaptationField AdaptationField)
+{
+  if(PacketHeader.getS()){
+    Init(PacketHeader.getPID());
+  }
+
+  m_PESH.Parse(TransportStreamPacket, PacketHeader.getPID(), PacketHeader.getAFC(), AdaptationField.getAdaptationFieldLength());
+
+  if(PacketHeader.getCC() == 0){
+    m_LastContinuityCounter = 0;
+    xBufferReset();
+    xBufferAppend(TransportStreamPacket, m_PESH.getIndexStart());
+    return xPES_Assembler::eResult::AssemblingStarted;
+  }
+  else if(PacketHeader.getCC() == 15){
+    xBufferAppend(TransportStreamPacket, m_PESH.getIndexStart());
+    m_LastContinuityCounter = PacketHeader.getCC();
+    return xPES_Assembler::eResult::AssemblingFinished;
+  }
+  else if(m_LastContinuityCounter == (PacketHeader.getCC()-1)){
+    xBufferAppend(TransportStreamPacket, m_PESH.getIndexStart());
+    m_LastContinuityCounter = PacketHeader.getCC();
+    return xPES_Assembler::eResult::AssemblingContinue;
+  }
+  else{
+    return xPES_Assembler::eResult::StreamPackedLost;
+  }
+
+}
+
+void xPES_Assembler::xBufferReset()
+{
+  m_Buffer = {0};
+}
+
+void xPES_Assembler::xBufferAppend(const uint8_t* Data, int32_t Size)
+{
+  if(m_LastContinuityCounter == 0){
+    m_BufferSize = m_PESH.getPacketLength();
+    if(m_BufferSize!=0){
+      m_Buffer = new uint8_t[m_BufferSize+6];
+    }
+  }
+
+  if(m_BufferSize!=0){
+    for(int i = Size; i<188; i++){
+      m_Buffer[m_DataOffset++] = Data[i];
+    }
+  }
+}
 //=============================================================================================================================================================================
