@@ -67,7 +67,7 @@ public:
   };
 
 protected:
-  //TODO - header fields, e.g.: (done1)
+  //header fields
   uint8_t m_SB;
   uint8_t m_E;
   uint8_t m_S;
@@ -83,7 +83,7 @@ public:
   void     Print() const;
 
 public:
-  //TODO - direct acces to header field value, e.g.: (done2)
+  //direct acces to header field value
   uint8_t  getSyncByte() const { return m_SB; }
   uint8_t  getE() const { return m_E; }
   uint8_t  getS() const { return m_S; }  
@@ -94,7 +94,7 @@ public:
   uint8_t  getCC() const { return m_CC; }
 
 public:
-  //TODO - derrived informations (done3)
+  //derrived informations
   bool     hasAdaptationField() const { 
     if (m_AFC == 2 || m_AFC == 3) return true; 
       else return false; 
@@ -114,7 +114,7 @@ protected:
   //setup
   uint8_t m_AdaptationFieldControl;
 
-  //mandatory fields (done11)
+  //mandatory fields
   uint8_t m_AFL; //uint8_t m_AdaptationFieldLength;
   uint8_t m_DC;
   uint8_t m_RA;
@@ -126,12 +126,11 @@ protected:
   uint8_t m_EX;
   
   //optional fields - PCR + Stuffing
-  //(done19 - PCR fields)
   uint64_t m_PCR;
   uint64_t m_PCRB;
   uint16_t m_PCRE;
   float m_Time; 
-  uint8_t m_Stuffing; //(done18)
+  uint8_t m_Stuffing;
 
 public:
   void Reset();
@@ -139,7 +138,7 @@ public:
   void Print() const;
 
 public:
-  //mandatory fields (done12)
+  //mandatory fields
   uint8_t getAdaptationFieldLength () const { return m_AFL ; }
   uint8_t getDC () const { return m_DC ; }
   uint8_t getRA () const { return m_RA ; }
@@ -180,7 +179,9 @@ protected:
   uint32_t m_PacketStartCodePrefix;
   uint8_t m_StreamId;
   uint16_t m_PacketLength;
-  uint8_t indexStart;
+  uint8_t indexStartHeader;
+  uint8_t indexStartNoHeader;
+  uint8_t additionalHeaderSize;
 
 public:
   void Reset();
@@ -192,7 +193,9 @@ public:
   uint32_t getPacketStartCodePrefix() const { return m_PacketStartCodePrefix; }
   uint8_t getStreamId () const { return m_StreamId; }
   uint16_t getPacketLength () const { return m_PacketLength; }
-  uint8_t getIndexStart () const { return indexStart; }
+  uint8_t getIndexStartHeader () const { return indexStartHeader; }
+  uint8_t getIndexStartNoHeader () const { return indexStartNoHeader; }
+  uint8_t getAdditionalHeaderSize () const { return additionalHeaderSize; }
 };
 
 //=============================================================================================================================================================================
@@ -203,10 +206,10 @@ public:
   enum class eResult : int32_t
   {
     UnexpectedPID = 1,
-    StreamPackedLost ,
-    AssemblingStarted ,
-    AssemblingContinue,
-    AssemblingFinished,
+    StreamPackedLost = 2,
+    AssemblingStarted = 3,
+    AssemblingContinue = 4,
+    AssemblingFinished = 5,
   };
 
 protected:
@@ -215,18 +218,18 @@ protected:
   //buffer
   uint8_t* m_Buffer;
   uint32_t m_BufferSize; 
-  uint32_t m_DataOffset; 
+  uint32_t m_DataOffset; //Ilość elementów w buforze w danym momencie
   //operation
   int8_t m_LastContinuityCounter; //CC
   bool m_Started;
   xPES_PacketHeader m_PESH;
 
 public:
-  xPES_Assembler (){ m_PESH.Reset(); }
-  ~xPES_Assembler(){}
+  xPES_Assembler (){}
+  ~xPES_Assembler(){delete[] m_Buffer;}
 
   void Init (int32_t PID);
-  eResult AbsorbPacket(const uint8_t* TransportStreamPacket, xTS_PacketHeader PacketHeader, xTS_AdaptationField AdaptationField);
+  eResult AbsorbPacket(const uint8_t* TransportStreamPacket, const xTS_PacketHeader* PacketHeader, const xTS_AdaptationField* AdaptationField);
   
   void PrintPESH () const { m_PESH.Print(); }
   uint8_t* getPacket () { return m_Buffer; }
@@ -236,5 +239,4 @@ protected:
   void xBufferReset ();
   void xBufferAppend(const uint8_t* Data, int32_t Size);
 };
-
 //=============================================================================================================================================================================
